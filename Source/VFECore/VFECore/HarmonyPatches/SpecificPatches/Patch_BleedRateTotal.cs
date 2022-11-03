@@ -1,4 +1,6 @@
-﻿using HarmonyLib;
+﻿using System;
+using HarmonyLib;
+using RimWorld;
 using Verse;
 
 namespace VFECore
@@ -18,6 +20,21 @@ namespace VFECore
                         __result = 0;
                     }
                 }
+            }
+        }
+
+        [HarmonyPatch(typeof(SanguophageUtility), nameof(SanguophageUtility.DoBite), MethodType.Normal)]
+        public static class Patch_DoBite
+        {
+            public static void Postfix(Pawn biter, Pawn victim)
+            {
+                var bloodLossDef = HediffDefOf.BloodLoss;
+                var culpritHediff = victim.health.hediffSet.GetFirstHediffOfDef(bloodLossDef);
+                if (culpritHediff?.Severity < bloodLossDef.lethalSeverity)
+                    return;
+                var thirstNeed = biter.needs?.TryGetNeed<Need_KillThirst>();
+                if (thirstNeed != null)
+                    thirstNeed.CurLevel = 1f;
             }
         }
     }
