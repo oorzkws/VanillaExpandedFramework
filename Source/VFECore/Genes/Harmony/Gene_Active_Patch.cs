@@ -3,7 +3,7 @@ using Verse;
 
 namespace VanillaGenesExpanded
 {
-    [HarmonyPatch(typeof(Gene), "Active", MethodType.Getter)]
+    //[HarmonyPatch(typeof(Gene), "Active", MethodType.Getter)]
     public static class VanillaGenesExpanded_Gene_Active_Patch
     {
         public static void Postfix(Gene __instance, ref bool __result)

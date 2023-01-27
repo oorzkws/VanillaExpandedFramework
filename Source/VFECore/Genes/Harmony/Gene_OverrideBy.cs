@@ -119,6 +119,7 @@ namespace VanillaGenesExpanded
                     if (gene.pawn.story?.bodyType == BodyTypeDefOf.Male)
                     {
                         gene.pawn.story.bodyType = BodyTypeDefOf.Female;
+                        DisableInvalidGenderedGenes(gene);
                     }
                 }
                 if (extension.forceMale == true)
@@ -204,8 +205,28 @@ namespace VanillaGenesExpanded
                 {
                     StaticCollectionsClass.AddSkillRecreationGenePawnToList(gene.pawn, extension.skillRecreation);
                 }
-
-
+            }
+        }
+        
+        public static void DisableInvalidGenderedGenes(Gene instigator)
+        {
+            var pawn = instigator.pawn;
+            if (pawn.genes == null) return;
+            List<Gene> genes = pawn.genes.GenesListForReading;
+            foreach (Gene gene in genes)
+            {
+                if (gene == instigator) continue;
+                var extension = gene.def.GetModExtension<GeneExtension>();
+                if (extension is not {forGenderOnly: { }}) continue;
+                if (pawn.gender == extension.forGenderOnly.Value)
+                {
+                    if (gene.overriddenByGene == instigator)
+                    {
+                        gene.overriddenByGene = null;
+                    }
+                }else{
+                    gene.overriddenByGene ??= instigator;
+                }
             }
         }
 
